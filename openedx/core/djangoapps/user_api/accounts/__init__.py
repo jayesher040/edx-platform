@@ -98,3 +98,7 @@ REQUIRED_FIELD_CITY_MSG = _("Enter your city.")
 REQUIRED_FIELD_GOALS_MSG = _("Tell us your goals.")
 REQUIRED_FIELD_LEVEL_OF_EDUCATION_MSG = _("Select the highest level of education you have completed.")
 REQUIRED_FIELD_MAILING_ADDRESS_MSG = _("Enter your mailing address.")
+PHONE_NUMBER_CONFLICT_MSG = _(
+    "It looks like {phone_number} belongs to an existing account. "
+    "Try again with a different phone number."
+)

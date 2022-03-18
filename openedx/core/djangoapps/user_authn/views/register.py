@@ -74,7 +74,8 @@ from common.djangoapps.student.models import (
     UserAttribute,
     create_comments_service_user,
     email_exists_or_retired,
-    username_exists_or_retired
+    username_exists_or_retired,
+    phone_number_exists
 )
 from common.djangoapps.student.views import compose_and_send_activation_email
 from common.djangoapps.third_party_auth import pipeline, provider
@@ -203,7 +204,6 @@ def create_account_with_params(request, params):
         registration_fields.get('terms_of_service') != 'hidden' or
         registration_fields.get('honor_code') != 'hidden'
     )
-
     form = AccountCreationForm(
         data=params,
         extra_fields=extra_fields,
@@ -566,7 +566,8 @@ class RegistrationView(APIView):
         data = request.POST.copy()
         self._handle_terms_of_service(data)
 
-        response = self._handle_duplicate_email_username(request, data)
+        # response = self._handle_duplicate_email_username(request, data)
+        response = self._handle_duplicate_phone_number(request, data)
         if response:
             return response
 
@@ -587,6 +588,20 @@ class RegistrationView(APIView):
                 secure=request.is_secure()
             )  # setting the cookie to show account activation dialogue in platform and learning MFE
         return response
+
+    def _handle_duplicate_phone_number(self, request, data):
+        # pylint: disable=no-member
+        # TODO Verify whether this check is needed here - it may be duplicated in user_api.
+        phone_number = data.get('phone_number')
+        errors = {}
+        error_code = 'duplicate'
+        if phone_number is not None and phone_number_exists(phone_number):
+            error_code += '-phone_number'
+            error_message = accounts_settings.PHONE_NUMBER_CONFLICT_MSG.format(phone_number=phone_number)
+            errors['phone_number'] = [{'user_message': error_message}]
+
+        if errors:
+            return self._create_response(request, errors, status_code=409, error_code=error_code)
 
     def _handle_duplicate_email_username(self, request, data):
         # pylint: disable=no-member

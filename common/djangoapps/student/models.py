@@ -320,6 +320,13 @@ def username_exists_or_retired(username):
     return User.objects.filter(username=username).exists() or is_username_retired(username)
 
 
+def phone_number_exists(phone_number):
+    """
+    Check a phone_number for existence against the User model.
+    """
+    return User.objects.filter(profile__phone_number=phone_number).exists()
+
+
 def is_email_retired(email):
     """
     Checks to see if the given email has been previously retired

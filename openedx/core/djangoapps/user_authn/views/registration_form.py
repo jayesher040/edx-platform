@@ -149,17 +149,17 @@ class AccountCreationForm(forms.Form):
 
     # TODO: Resolve repetition
 
-    username = UsernameField()
+    # username = UsernameField()
 
-    email = forms.EmailField(
-        max_length=accounts.EMAIL_MAX_LENGTH,
-        min_length=accounts.EMAIL_MIN_LENGTH,
-        error_messages={
-            "required": _EMAIL_INVALID_MSG,
-            "invalid": _EMAIL_INVALID_MSG,
-            "max_length": _("Email cannot be more than %(limit_value)s characters long"),
-        }
-    )
+    # email = forms.EmailField(
+    #     max_length=accounts.EMAIL_MAX_LENGTH,
+    #     min_length=accounts.EMAIL_MIN_LENGTH,
+    #     error_messages={
+    #         "required": _EMAIL_INVALID_MSG,
+    #         "invalid": _EMAIL_INVALID_MSG,
+    #         "max_length": _("Email cannot be more than %(limit_value)s characters long"),
+    #     }
+    # )
 
     password = forms.CharField()
 
@@ -197,7 +197,8 @@ class AccountCreationForm(forms.Form):
             "mailing_address": _("Your mailing address is required"),
             "goals": _("A description of your goals is required"),
             "city": _("A city is required"),
-            "country": _("A country is required")
+            "country": _("A country is required"),
+            "phone_number": _("Mobile Number is required"),
         }
         for field_name, field_value in extra_fields.items():
             if field_name not in self.fields:
@@ -262,6 +263,19 @@ class AccountCreationForm(forms.Form):
             )
         return email
 
+    def clean_phone_number(self):
+        """
+        validate phone_number number
+        """
+        phone_number = self.cleaned_data["phone_number"]
+        if phone_number:
+            validity = re.compile("^(\+\d{1,3})?,?\s?\d{10,10}").match(phone_number)
+            if validity:
+                return phone_number
+            else:
+                raise ValidationError(_("Mobile number format is not Correct"))
+        return phone_number
+
     def clean_year_of_birth(self):
         """
         Parse year_of_birth to an integer, but just use None instead of raising
@@ -303,7 +317,7 @@ class RegistrationFormFactory:
     Construct Registration forms and associated fields.
     """
 
-    DEFAULT_FIELDS = ["email", "name", "username", "password"]
+    DEFAULT_FIELDS = ["phone_number", "name", "password"]
 
     EXTRA_FIELDS = [
         "confirm_email",
@@ -936,6 +950,25 @@ class RegistrationFormFactory:
             error_messages={
                 "required": error_msg
             }
+        )
+
+    def _add_phone_number_field(self, form_desc, required=True):
+        """Add a contact field to a form description.
+
+        Arguments:
+            form_desc: A form description
+
+        Keyword Arguments:
+            required (bool): Whether this field is required; defaults to True
+
+        """
+        phone_number_label = _(u"Mobile Number")
+
+        form_desc.add_field(
+            "phone_number",
+            label=phone_number_label,
+            field_type="text",
+            required=required
         )
 
     def _add_honor_code_field(self, form_desc, required=True):

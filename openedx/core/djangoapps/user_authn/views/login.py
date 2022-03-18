@@ -102,6 +102,22 @@ def _do_third_party_auth(request):
         raise AuthFailedError(message, error_code='third-party-auth-with-no-linked-account')  # lint-amnesty, pylint: disable=raise-missing-from
 
 
+def _get_user_by_phone_number(request):
+    """
+    Finds a user object in the database based on the given request, ignores all fields except for email.
+    """
+    if 'phone_number' not in request.POST or 'password' not in request.POST:
+        raise AuthFailedError(_('There was an error receiving your login information. Please email us.'))
+
+    phone_number = request.POST['phone_number']
+    try:
+        return USER_MODEL.objects.get(profile__phone_number=phone_number)
+    except USER_MODEL.DoesNotExist:
+        digest = hashlib.shake_128(phone_number.encode('utf-8')).hexdigest(16)  # pylint: disable=too-many-function-args
+        AUDIT_LOG.warning(f"Login failed - Unknown user phone_number {digest}")
+
+
+
 def _get_user_by_email(request):
     """
     Finds a user object in the database based on the given request, ignores all fields except for email.
@@ -513,7 +529,7 @@ def login_user(request, api_version='v1'):
     _parse_analytics_param_for_course_id(request)
 
     third_party_auth_requested = third_party_auth.is_enabled() and pipeline.running(request)
-    first_party_auth_requested = bool(request.POST.get('email')) or bool(request.POST.get('password'))
+    first_party_auth_requested = bool(request.POST.get('phone_number')) or bool(request.POST.get('password'))
     is_user_third_party_authenticated = False
 
     set_custom_attribute('login_user_course_id', request.POST.get('course_id'))
@@ -546,7 +562,8 @@ def login_user(request, api_version='v1'):
                 response_content = e.get_response()
                 return JsonResponse(response_content, status=403)
         elif api_version == API_V1:
-            user = _get_user_by_email(request)
+            # user = _get_user_by_email(request)
+            user = _get_user_by_phone_number(request)
         else:
             user = _get_user_by_email_or_username(request)
 

@@ -684,10 +684,10 @@ def do_create_account(form, custom_form=None):
     if errors:
         raise ValidationError(errors)
 
-    proposed_username = form.cleaned_data["username"]
+    phone_number = form.cleaned_data["phone_number"]
     user = User(
-        username=proposed_username,
-        email=form.cleaned_data["email"],
+        username=phone_number,
+        email="{}@turnthebus.org".format(phone_number),
         is_active=False
     )
     password = normalize_password(form.cleaned_data["password"])
@@ -729,7 +729,7 @@ def do_create_account(form, custom_form=None):
 
     profile_fields = [
         "name", "level_of_education", "gender", "mailing_address", "city", "country", "goals",
-        "year_of_birth"
+        "year_of_birth", "phone_number"
     ]
     profile = UserProfile(
         user=user,

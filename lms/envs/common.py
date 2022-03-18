@@ -3456,13 +3456,14 @@ REGISTRATION_EXTRA_FIELDS = {
 }
 
 REGISTRATION_FIELD_ORDER = [
+    "phone_number",
     "name",
+    "password",
     "first_name",
     "last_name",
     "username",
     "email",
     "confirm_email",
-    "password",
     "city",
     "state",
     "country",
