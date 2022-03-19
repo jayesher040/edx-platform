@@ -125,3 +125,13 @@ class PreferenceUpdateError(PreferenceRequestError):
 class CountryCodeError(ValueError):
     """There was a problem with the country code"""
     pass  # lint-amnesty, pylint: disable=unnecessary-pass
+
+
+class AccountPhoneNumberInvalid(AccountRequestError):
+    """The requested phone number is not in a valid format. """
+    pass  # lint-amnesty, pylint: disable=unnecessary-pass
+
+
+class AccountPhoneNumberAlreadyExists(AccountRequestError):
+    """User with the same phone number already exists. """
+    pass  # lint-amnesty, pylint: disable=unnecessary-pass

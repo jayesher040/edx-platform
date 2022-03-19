@@ -274,7 +274,7 @@ def _handle_failed_authentication(user, authenticated_user):
             if not LoginFailures.is_user_locked_out(user):
                 max_failures_allowed = settings.MAX_FAILED_LOGIN_ATTEMPTS_ALLOWED
                 remaining_attempts = max_failures_allowed - failure_count
-                error_message = Text(_('Email or password is incorrect.'
+                error_message = Text(_('Mobile Number or password is incorrect.'
                                        '{li_start}You have {remaining_attempts} more sign-in '
                                        'attempts before your account is temporarily locked.{li_end}'
                                        '{li_start}If you\'ve forgotten your password, click '
@@ -299,7 +299,7 @@ def _handle_failed_authentication(user, authenticated_user):
             _generate_locked_out_error_message()
 
     raise AuthFailedError(
-        _('Email or password is incorrect.'),
+        _('Mobile Number or password is incorrect.'),
         error_code='incorrect-email-or-password',
         context={'failure_count': failure_count},
     )

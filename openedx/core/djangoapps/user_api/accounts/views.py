@@ -604,7 +604,7 @@ class DeactivateLogoutView(APIView):
         if user and LoginFailures.is_feature_enabled():
             LoginFailures.increment_lockout_counter(user)
 
-        raise AuthFailedError(_('Email or password is incorrect.'))
+        raise AuthFailedError(_('Mobile Number or password is incorrect.'))
 
 
 def _set_unusable_password(user):

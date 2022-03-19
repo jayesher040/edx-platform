@@ -97,19 +97,19 @@ def get_login_session_form(request):
 
     # Translators: These instructions appear on the login form, immediately
     # below a field meant to hold the user's email address.
-    phone_number_instructions = _("The phone_number you used to register with {platform_name}").format(
+    phone_number_instructions = _("The Mobile Number you used to register with {platform_name}").format(
         platform_name=configuration_helpers.get_value('PLATFORM_NAME', settings.PLATFORM_NAME)
     )
 
     form_desc.add_field(
         "phone_number",
-        field_type="text",
+        field_type="number",
         label=phone_number_label,
         instructions=phone_number_instructions,
         restrictions={
-            "min_length": 10,
-            "max_length": 10,
-        }
+            "min_length": accounts.PHONE_NUMBER_MIN_LENGTH,
+            "max_length": accounts.PHONE_NUMBER_MAX_LENGTH,
+        },
     )
 
     # Translators: This label appears above a field on the login form

@@ -49,7 +49,9 @@ from openedx.core.djangoapps.user_api.accounts.api import (
     get_name_validation_error,
     get_password_validation_error,
     get_username_existence_validation_error,
-    get_username_validation_error
+    get_username_validation_error,
+    get_phone_number_validation_error,
+    get_phone_number_existence_validation_error
 )
 from openedx.core.djangoapps.user_api.preferences import api as preferences_api
 from openedx.core.djangoapps.user_authn.cookies import set_logged_in_cookies
@@ -837,13 +839,22 @@ class RegistrationValidationView(APIView):
         country = request.data.get('country')
         return get_country_validation_error(country)
 
+    def phone_number_handler(self, request):
+        """ Validates whether the phone_number is valid. """
+        phone_number = request.data.get('phone_number')
+        invalid_phone_number_error = get_phone_number_validation_error(phone_number, self.api_version)
+        phone_number_exists_error = get_phone_number_existence_validation_error(phone_number, self.api_version)
+
+        return invalid_phone_number_error or phone_number_exists_error
+
     validation_handlers = {
         "name": name_handler,
         "username": username_handler,
         "email": email_handler,
         "confirm_email": confirm_email_handler,
         "password": password_handler,
-        "country": country_handler
+        "country": country_handler,
+        "phone_number": phone_number_handler
     }
 
     @method_decorator(

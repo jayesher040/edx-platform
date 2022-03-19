@@ -964,10 +964,17 @@ class RegistrationFormFactory:
         """
         phone_number_label = _(u"Mobile Number")
 
+        phone_number_instructions = _("This is what you will use to login.")
+
         form_desc.add_field(
             "phone_number",
             label=phone_number_label,
-            field_type="text",
+            instructions=phone_number_instructions,
+            field_type="number",
+            restrictions={
+                "min_length": accounts.PHONE_NUMBER_MIN_LENGTH,
+                "max_length": accounts.PHONE_NUMBER_MAX_LENGTH,
+            },
             required=required
         )
 

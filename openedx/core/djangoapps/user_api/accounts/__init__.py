@@ -102,3 +102,14 @@ PHONE_NUMBER_CONFLICT_MSG = _(
     "It looks like {phone_number} belongs to an existing account. "
     "Try again with a different phone number."
 )
+
+PHONE_NUMBER_MIN_LENGTH = 10
+PHONE_NUMBER_MAX_LENGTH = 10
+PHONE_NUMBER_BAD_TYPE_MSG = "Mobile Number must be a digit."
+PHONE_NUMBER_BAD_LENGTH_MSG = format_lazy(_("Enter a valid Mobile Number that contains {min} digits."),
+    min=PHONE_NUMBER_MAX_LENGTH
+)
+PHONE_NUMBER_CONFLICT_MSG = _(
+    "It looks like {phone_number} belongs to an existing account. "
+    "Try again with a different Mobile Number."
+)

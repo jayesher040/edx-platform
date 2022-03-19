@@ -20,7 +20,8 @@ from common.djangoapps.student.models import (
     User,
     UserProfile,
     email_exists_or_retired,
-    username_exists_or_retired
+    username_exists_or_retired,
+    phone_number_exists
 )
 from common.djangoapps.util.model_utils import emit_settings_changed_event
 from common.djangoapps.util.password_policy_validators import validate_password
@@ -487,6 +488,32 @@ def get_email_existence_validation_error(email, api_version='v1'):
     return _validate(_validate_email_doesnt_exist, errors.AccountEmailAlreadyExists, email, api_version)
 
 
+def get_phone_number_validation_error(phone_number, api_version='v1'):
+    """Get the built-in validation error message for when
+    the phone_number is invalid in some way.
+
+    :param phone_number: The proposed phone_number.
+    :param api_version: registration validation api version
+    :param default: The message to default to in case of no error.
+    :return: Validation error message.
+
+    """
+    return _validate(_validate_phone_number, errors.AccountPhoneNumberInvalid, phone_number, api_version)
+
+
+def get_phone_number_existence_validation_error(phone_number, api_version='v1'):
+    """Get the built-in validation error message for when
+    the phone_number has an existence conflict.
+
+    :param phone_number: The proposed phone_number.
+    :param api_version: registration validation api version
+    :param default: The message to default to in case of no error.
+    :return: Validation error message.
+
+    """
+    return _validate(_validate_phone_number_doesnt_exist, errors.AccountPhoneNumberAlreadyExists, phone_number, api_version)
+
+
 def _get_user_and_profile(username):
     """
     Helper method to return the legacy user and profile objects based on username.
@@ -579,6 +606,29 @@ def _validate_email(email, api_version='v1'):
         raise errors.AccountEmailInvalid(validation_err.message)
 
 
+def _validate_phone_number(phone_number, api_version='v1'):
+    """Validate the format of the phone_number.
+
+    Arguments:
+        phone_number: The proposed phone_number.
+        api_version(str): Validation API version; it is used to determine the error message
+
+    Returns:
+        None
+
+    Raises:
+        errors.AccountPhoneNumberInvalid
+
+    """
+    try:
+        _validate_unicode(phone_number)
+        _validate_length(phone_number, accounts.PHONE_NUMBER_MIN_LENGTH, accounts.PHONE_NUMBER_MAX_LENGTH, accounts.PHONE_NUMBER_BAD_LENGTH_MSG)
+    except (UnicodeError, errors.AccountDataBadType, errors.AccountDataBadLength) as invalid_phone_number_err:
+        raise errors.AccountPhoneNumberInvalid(str(invalid_phone_number_err))
+    except ValidationError as validation_err:
+        raise errors.AccountPhoneNumberInvalid(validation_err.message)
+
+
 def _validate_confirm_email(confirm_email, email):
     """Validate the confirmation email field.
 
@@ -662,6 +712,19 @@ def _validate_email_doesnt_exist(email, api_version='v1'):
 
     if email is not None and email_exists_or_retired(email):
         raise errors.AccountEmailAlreadyExists(_(error_message))  # lint-amnesty, pylint: disable=translation-of-non-string
+
+
+def _validate_phone_number_doesnt_exist(phone_number, api_version='v1'):
+    """Validate that the phone_number is not associated with an existing user.
+
+    :param phone_number: The proposed phone_number.
+    :param api_version: Validation API version; it is used to determine the error message
+    :return: None
+    :raises: errors.AccountEmailAlreadyExists
+    """
+    error_message = accounts.PHONE_NUMBER_CONFLICT_MSG.format(phone_number=phone_number)
+    if phone_number is not None and phone_number_exists(phone_number):
+        raise errors.AccountPhoneNumberAlreadyExists(_(error_message))
 
 
 def _validate_secondary_email_doesnt_exist(email):
