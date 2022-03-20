@@ -85,29 +85,24 @@ def get_password_reset_form():
 
     # Translators: This label appears above a field on the password reset
     # form meant to hold the user's email address.
-    email_label = _("Email")
-
-    # Translators: This example email address is used as a placeholder in
-    # a field on the password reset form meant to hold the user's email address.
-    email_placeholder = _("username@domain.com")
+    phone_number_label = _("Mobile Number")
 
     # Translators: These instructions appear on the password reset form,
     # immediately below a field meant to hold the user's email address.
     # pylint: disable=no-member
-    email_instructions = _("The email address you used to register with {platform_name}").format(
+    phone_number_instructions = _("The Mobile Number you used to register with {platform_name}").format(
         platform_name=configuration_helpers.get_value('PLATFORM_NAME', settings.PLATFORM_NAME)
     )
 
     form_desc.add_field(
-        "email",
-        field_type="email",
-        label=email_label,
-        placeholder=email_placeholder,
-        instructions=email_instructions,
+        "phone_number",
+        field_type="number",
+        label=phone_number_label,
+        instructions=phone_number_instructions,
         restrictions={
-            "min_length": accounts.EMAIL_MIN_LENGTH,
-            "max_length": accounts.EMAIL_MAX_LENGTH,
-        }
+            "min_length": accounts.PHONE_NUMBER_MIN_LENGTH,
+            "max_length": accounts.PHONE_NUMBER_MAX_LENGTH,
+        },
     )
 
     return form_desc
